@@ -34,7 +34,8 @@ var (
 	sequenceNo uint64
 
 	// timeNow is a customizable for testing purposes.
-	timeNow = time.Now
+	timeNow  = time.Now
+	location *time.Location
 )
 
 // Record represents a log record and contains the timestamp when the record
@@ -133,6 +134,7 @@ func Reset() {
 	b.SetLevel(DEBUG, "")
 	SetFormatter(DefaultFormatter)
 	timeNow = time.Now
+	location, _ = time.LoadLocation("Asia/Shanghai")
 }
 
 // IsEnabledFor returns true if the logger is enabled for the given level.
@@ -148,7 +150,7 @@ func (l *Logger) log(lvl Level, format *string, args ...interface{}) {
 	// Create the logging record and pass it in to the backend
 	record := &Record{
 		ID:     atomic.AddUint64(&sequenceNo, 1),
-		Time:   timeNow(),
+		Time:   timeNow().In(location),
 		Module: l.Module,
 		Level:  lvl,
 		fmt:    format,
